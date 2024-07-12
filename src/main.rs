@@ -25,15 +25,13 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
     let buffer = BufReader::new(&mut stream);
-    let request_line = buffer
-        .lines()
-        .next()
-        .unwrap()
-        .unwrap();
+    let request_line = buffer.lines().next().unwrap().unwrap();
 
     if request_line == "GET / HTTP/1.1" {
         let response = "HTTP/1.1 200 OK\r\n\r\n";
-        stream.write_all(response.as_bytes()).expect("Failed to write to Response Object\n");
+        stream
+            .write_all(response.as_bytes())
+            .expect("Failed to write to Response Object\n");
     } else {
         let response = "HTTP/1.1 404 Not Found\r\n\r\n";
         stream.write_all(response.as_bytes()).expect("200 OK\n");
