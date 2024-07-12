@@ -14,8 +14,7 @@ fn main() {
         match stream {
             Ok(mut _stream) => {
                 println!("accepted new connection");
-                let write_all = _stream.write_all("HTTP/1.1 200 OK\r\n\r\n".as_bytes());
-                let _ = write_all;
+                _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").expect("200 \n");
 
             }
             Err(e) => {
