@@ -27,13 +27,12 @@ fn handle_connection(mut stream: TcpStream) {
     let buffer = BufReader::new(&mut stream);
     let request_line = buffer.lines().next().unwrap().unwrap();
 
-    if request_line == "GET / HTTP/1.1" {
-        let response = "HTTP/1.1 200 OK\r\n\r\n";
-        stream
-            .write_all(response.as_bytes())
-            .expect("Failed to write to Response Object\n");
+    let status_line = if request_line == "GET / HTTP/1.1" {
+        "HTTP/1.1 200 OK\r\n\r\n"
     } else {
-        let response = "HTTP/1.1 404 Not Found\r\n\r\n";
-        stream.write_all(response.as_bytes()).expect("200 OK\n");
-    }
+        "HTTP/1.1 404 Not Found\r\n\r\n"
+    };
+
+    
+    stream.write_all(status_line.as_bytes()).expect("200 OK\n");
 }
