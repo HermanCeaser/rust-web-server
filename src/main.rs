@@ -24,20 +24,39 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
     let buffer = BufReader::new(&mut stream);
-    let request_line = buffer.lines().next().unwrap().unwrap();
+    let http_request: Vec<_> = buffer
+        .lines()
+        .map(|result| result.unwrap_or_default())
+        .take_while(|line| !line.is_empty())
+        .collect();
+    
+    if http_request.is_empty() {
+        return;
+    }
+
+    let request_line = http_request.get(0).unwrap();
+    // let host_line = http_request.get(1).unwrap();
+    let user_agent = http_request.iter().find(|line| line.starts_with("User-Agent:"));
+
 
     let (status_line, body) = if request_line.starts_with("GET /echo/") {
         let echo_content = &request_line[10..request_line.len()-9];
-        // println!("{:#?}", echo_content);
         ("HTTP/1.1 200 OK", echo_content)
     } else {
         match &request_line[..] {
             "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", ""),
+            "GET /user-agent HTTP/1.1" => {
+                if let Some(user_agent) = user_agent {
+                    let (_, agent) = user_agent.split_at(12);
+                    ("HTTP/1.1 200 OK", agent)
+                } else {
+                    ("HTTP/1.1 400 Bad Request", "User-Agent header not found")
+                }
+            },
             _ => ("HTTP/1.1 404 Not Found", ""),
         }
     };
 
-   
     let response = if body.is_empty() {
         format!("{status_line}\r\n\r\n")
     } else {
