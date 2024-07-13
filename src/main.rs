@@ -1,6 +1,7 @@
 // Uncomment this block to pass the first stage
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
+use std::thread;
 
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -13,7 +14,9 @@ fn main() {
         match stream {
             Ok(_stream) => {
                 println!("accepted new connection");
-                handle_connection(_stream);
+                thread::spawn(|| {
+                    handle_connection(_stream);
+                });
             }
             Err(e) => {
                 println!("error: {}", e);
